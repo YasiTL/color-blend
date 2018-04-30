@@ -21,18 +21,17 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private OrthographicCamera camera;
 	private Viewport viewport;
 	private SpriteBatch batch;
-	private Pixmap pixmap, pixmap2;
-	private Texture pixmaptex, pixmaptex2;
+	private Pixmap pixmap, pixmap2, pixmap3;
+	private Texture pixmaptex, pixmaptex2, pixmaptex3;
     Vector3 spritePosition = new Vector3();
     Vector3 spritePosition2 = new Vector3();
+    Vector3 spritePosition3 = new Vector3();
 
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
-
-		img = new Texture(Gdx.files.internal("badlogic.jpg"));
 
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
@@ -63,7 +62,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 //            pixmaptex = new Texture(pixmap);
 //        }
 
-
 		camera.setToOrtho(false, 800, 800 * (h/w));
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0); //Makes it so that the bottom
         Gdx.input.setInputProcessor(this);
@@ -72,16 +70,24 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         int rectHeight = 200;
 
         pixmap = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
-        pixmap.setColor( 0, 1, 0, 0.75f );
+        pixmap.setColor( 0, 1, 0, 1f );
         pixmap.fillRectangle(0, 0, rectWidth, rectHeight);
         pixmaptex = new Texture( pixmap );
         pixmap.dispose();
 
         pixmap2 = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
-        pixmap2.setColor( 0, 0, 1, 0.75f );
+        pixmap2.setColor( 0, 0, 1, 1f );
         pixmap2.fillRectangle(0, 0, rectWidth, rectHeight);
         pixmaptex2 = new Texture(pixmap2);
         pixmap2.dispose();
+
+        pixmap3 = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
+        pixmap3.setColor( 1, 0, 0, 1f );
+        pixmap3.fillRectangle(0, 0, rectWidth, rectHeight);
+        pixmaptex3 = new Texture(pixmap3);
+        pixmap3.dispose();
+
+        spritePosition3.set(0, 200, 0);
 
 		camera.update();
 
@@ -90,15 +96,18 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void render () {
 		
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(0.976f, 0.968f, 0.886f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(pixmaptex, spritePosition.x, spritePosition.y);
+        batch.setBlendFunction(GL20.GL_CONSTANT_COLOR, GL20.GL_ONE_MINUS_SRC_COLOR); //CMYK Blending
+        batch.draw(pixmaptex, spritePosition.x, spritePosition.y);
         batch.draw(pixmaptex2, spritePosition2.x, spritePosition2.y);
-		batch.end();
+        batch.draw(pixmaptex3, spritePosition3.x, spritePosition3.y);
+        batch.end();
 
         camera.unproject(spritePosition.set(0, Gdx.input.getY(), 0));
+        Gdx.app.log( "Y POSITION", spritePosition + " ");
         //camera.unproject(spritePosition2.set(0, Gdx.input.getY(), 0));
 
     }
@@ -183,7 +192,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        Gdx.app.log( "MOVED",  screenX + " " + screenY);
+        Gdx.app.log( "MOVED",  screenX + " " + screenY + " " + pointer);
         return false;
     }
 
