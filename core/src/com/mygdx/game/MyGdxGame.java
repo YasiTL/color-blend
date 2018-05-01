@@ -16,22 +16,26 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	Texture img;
 
-	private Rectangle rectangle;
+	private Rectangle rectangle, rectangle2, intersection;
 	private ShapeRenderer shapeRenderer;
 	private OrthographicCamera camera;
 	private Viewport viewport;
 	private SpriteBatch batch;
-	private Pixmap pixmap, pixmap2, pixmap3;
-	private Texture pixmaptex, pixmaptex2, pixmaptex3;
+	private Pixmap pixmap, pixmap2, pixmap3, intersectionPixmap;
+	private Texture pixmaptex, pixmaptex2, pixmaptex3, intersectiontext;
+
+	private int xpos, ypos;
     Vector3 spritePosition = new Vector3();
     Vector3 spritePosition2 = new Vector3();
     Vector3 spritePosition3 = new Vector3();
 
-	
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
+
+        Gdx.input.setInputProcessor(this);
 
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
@@ -39,13 +43,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         Gdx.app.log( "WIDTH", w + " ");
         Gdx.app.log( "HEIGHT", h + " ");
 
-
-//		shapeRenderer = new ShapeRenderer();
-//		rectangle = new Rectangle();
-//		rectangle.x = 100;
-//		rectangle.y = 100;
-//		rectangle.width = w;
-//		rectangle.height = h/5;
 
 //		pixmap.setColor(1.0f,0f, 0f, 1.0f);
 //		pixmap.drawRectangle(100, 100, (int)w, (int)h/5);
@@ -64,30 +61,50 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 		camera.setToOrtho(false, 800, 800 * (h/w));
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0); //Makes it so that the bottom
-        Gdx.input.setInputProcessor(this);
+
 
         int rectWidth = 800;
         int rectHeight = 200;
 
-        pixmap = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
+        shapeRenderer = new ShapeRenderer();
+        rectangle = new Rectangle();
+        rectangle.x = 0;
+        rectangle.y = 0;
+        rectangle.width = w;
+        rectangle.height = 200;
+
+//        rectangle2 = new Rectangle();
+//        rectangle2.x = 100;
+//        rectangle2.y = 100;
+//        rectangle2.width = w;
+//        rectangle2.height = h/5;
+//
+//        intersection = new Rectangle();
+
+
+
+
+        pixmap = new Pixmap( (int)rectangle.getWidth(), (int)rectangle.getHeight(), Pixmap.Format.RGBA8888 );
         pixmap.setColor( 0, 1, 0, 1f );
-        pixmap.fillRectangle(0, 0, rectWidth, rectHeight);
+        pixmap.fillRectangle(0, 0, (int)rectangle.getWidth(), (int)rectangle.getHeight());
         pixmaptex = new Texture( pixmap );
         pixmap.dispose();
+//
+//        pixmap2 = new Pixmap( (int)rectangle.getWidth(), (int)rectangle.getHeight(), Pixmap.Format.RGBA8888 );
+//        pixmap2.setColor( 0, 0, 1, 1f );
+//        pixmap2.fillRectangle(0, 0, (int)rectangle.getWidth(), (int)rectangle.getHeight());
+//        pixmaptex2 = new Texture(pixmap2);
+//        pixmap2.dispose();
 
-        pixmap2 = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
-        pixmap2.setColor( 0, 0, 1, 1f );
-        pixmap2.fillRectangle(0, 0, rectWidth, rectHeight);
-        pixmaptex2 = new Texture(pixmap2);
-        pixmap2.dispose();
 
-        pixmap3 = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
-        pixmap3.setColor( 1, 0, 0, 1f );
-        pixmap3.fillRectangle(0, 0, rectWidth, rectHeight);
-        pixmaptex3 = new Texture(pixmap3);
-        pixmap3.dispose();
+//
+//        pixmap3 = new Pixmap( rectWidth, rectHeight, Pixmap.Format.RGBA8888 );
+//        pixmap3.setColor( 1, 0, 0, 1f );
+//        pixmap3.fillRectangle(0, 0, rectWidth, rectHeight);
+//        pixmaptex3 = new Texture(pixmap3);
+//        pixmap3.dispose();
 
-        spritePosition3.set(0, 200, 0);
+        //spritePosition3.set(0, 200, 0);
 
 		camera.update();
 
@@ -95,75 +112,67 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void render () {
-		
+
 		Gdx.gl.glClearColor(0.976f, 0.968f, 0.886f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(camera.combined);
+
 		batch.begin();
-        batch.setBlendFunction(GL20.GL_CONSTANT_COLOR, GL20.GL_ONE_MINUS_SRC_COLOR); //CMYK Blending
-        batch.draw(pixmaptex, spritePosition.x, spritePosition.y);
-        batch.draw(pixmaptex2, spritePosition2.x, spritePosition2.y);
-        batch.draw(pixmaptex3, spritePosition3.x, spritePosition3.y);
+//        if(Gdx.input.isTouched()){
+//            xpos = Gdx.input.getX();
+//            ypos = Gdx.graphics.getHeight() - Gdx.input.getY();
+//        }
+        batch.draw(pixmaptex, rectangle.x, rectangle.y);
+
+
+
+
+        //batch.setBlendFunction(GL20.GL_CONSTANT_COLOR, GL20.GL_ONE_MINUS_SRC_COLOR); //CMYK Blending
+
+        //batch.draw(pixmaptex, rectangle.getX(), rectangle.getY());
+//        batch.draw(pixmaptex, spritePosition.x, spritePosition.y);
+//        batch.draw(pixmaptex2, spritePosition2.x, spritePosition2.y);
+
+//        batch.draw(pixmaptex3, spritePosition3.x, spritePosition3.y);
         batch.end();
+        if(Gdx.input.isTouched()) {
+            Vector3 touchPos = new Vector3();
+            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touchPos);
+//            rectangle.x = touchPos.y - 64 / 2;
+            if(rectangle.contains(touchPos.x, touchPos.y)){
+                rectangle.set(0, touchPos.y, rectangle.getWidth(), rectangle.getHeight());
+                Gdx.app.log("IN RECT", "IN RECTANGLE");
+            }
+            else {
+                rectangle.set(0, touchPos.y, rectangle.getWidth(), rectangle.getHeight());
+                Gdx.app.log("IN RECT", "NOT IN RECTANGLE");
+            }
+        }
+
+//        if(Gdx.input.isTouched() && rectangle.contains(Gdx.input.getX(),camera.unproject(Gdx.input.getY()))) {
+//            //rectangle.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 100, 100);
+//            Gdx.app.log("IN RECT", "IN RECTANGLE");
+//        }
 
         camera.unproject(spritePosition.set(0, Gdx.input.getY(), 0));
-        Gdx.app.log( "Y POSITION", spritePosition + " ");
+        //Gdx.app.log( "Y POSITION", spritePosition + " ");
         //camera.unproject(spritePosition2.set(0, Gdx.input.getY(), 0));
 
     }
-	
+
+//    intersectionPixmap = new Pixmap( (int)intersection.getWidth(), (int)intersection.getHeight(), Pixmap.Format.RGBA8888 );
+//            intersectionPixmap.setColor( 0, 0, 1, 1f );
+//            intersectionPixmap.fillRectangle(0, 0, (int)intersection.getWidth(), (int)intersection.getHeight());
+//    intersectiontext = new Texture(intersectionPixmap);
+//            intersectionPixmap.dispose();
+//            batch.draw(intersectiontext, (int)intersection.x, (int)intersection.y);
+
 	@Override
 	public void dispose () {
 		batch.dispose();
 		img.dispose();
 	}
-
-
-    public static int HSBtoRGBA8888(float hue, float saturation, float brightness) {
-        int r = 0, g = 0, b = 0;
-        if (saturation == 0) {
-            r = g = b = (int)(brightness * 255.0f + 0.5f);
-        } else {
-            float h = (hue - (float)Math.floor(hue)) * 6.0f;
-            float f = h - (float)java.lang.Math.floor(h);
-            float p = brightness * (1.0f - saturation);
-            float q = brightness * (1.0f - saturation * f);
-            float t = brightness * (1.0f - (saturation * (1.0f - f)));
-            switch ((int)h) {
-                case 0:
-                    r = (int)(brightness * 255.0f + 0.5f);
-                    g = (int)(t * 255.0f + 0.5f);
-                    b = (int)(p * 255.0f + 0.5f);
-                    break;
-                case 1:
-                    r = (int)(q * 255.0f + 0.5f);
-                    g = (int)(brightness * 255.0f + 0.5f);
-                    b = (int)(p * 255.0f + 0.5f);
-                    break;
-                case 2:
-                    r = (int)(p * 255.0f + 0.5f);
-                    g = (int)(brightness * 255.0f + 0.5f);
-                    b = (int)(t * 255.0f + 0.5f);
-                    break;
-                case 3:
-                    r = (int)(p * 255.0f + 0.5f);
-                    g = (int)(q * 255.0f + 0.5f);
-                    b = (int)(brightness * 255.0f + 0.5f);
-                    break;
-                case 4:
-                    r = (int)(t * 255.0f + 0.5f);
-                    g = (int)(p * 255.0f + 0.5f);
-                    b = (int)(brightness * 255.0f + 0.5f);
-                    break;
-                case 5:
-                    r = (int)(brightness * 255.0f + 0.5f);
-                    g = (int)(p * 255.0f + 0.5f);
-                    b = (int)(q * 255.0f + 0.5f);
-                    break;
-            }
-        }
-        return (r << 24) | (g << 16) | (b << 8) | 0x000000ff;
-    }
 
     @Override
     public boolean keyDown(int keycode) {
@@ -182,16 +191,24 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+        xpos = Gdx.input.getX();
+        ypos = Gdx.input.getY();
+        Gdx.app.log( "TOUCHED",  pointer + " ");
         return false;
     }
 
+
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
+
+	    return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        xpos = Gdx.input.getX();
+        ypos = Gdx.input.getY();
         Gdx.app.log( "MOVED",  screenX + " " + screenY + " " + pointer);
         return false;
     }
