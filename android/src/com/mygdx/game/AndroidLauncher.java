@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,5 +20,11 @@ public class AndroidLauncher extends AndroidApplication {
 		config.useAccelerometer = false;
 		config.useCompass = false;
 		initialize(new MyGdxGame(), config);
+
+		int color1 = Color.argb(1, 1, 0 , 0);
+		int color2 = Color.argb(1, 0, 0 , 1);
+
+
+
 	}
 }
