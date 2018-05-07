@@ -86,7 +86,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         rectangle2.x = 0;
         rectangle2.y = 0;
         rectangle2.width = w;
-        rectangle2.height = h/5;
+        rectangle2.height = 200;
 
         rectangles = new Rectangle[]{rectangle1, rectangle2};
 
@@ -100,9 +100,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         pixmaptex = new Texture( pixmap );
         pixmap.dispose();
 
-        pixmap2 = new Pixmap( (int) rectangle1.getWidth(), (int) rectangle1.getHeight(), Pixmap.Format.RGBA8888 );
+        pixmap2 = new Pixmap( (int) rectangle2.getWidth(), (int) rectangle2.getHeight(), Pixmap.Format.RGBA8888 );
         pixmap2.setColor( 0, 0, 1, 1f );
-        pixmap2.fillRectangle(0, 0, (int) rectangle1.getWidth(), (int) rectangle1.getHeight());
+        pixmap2.fillRectangle(0, 0, (int) rectangle2.getWidth(), (int) rectangle2.getHeight());
         pixmaptex2 = new Texture(pixmap2);
         pixmap2.dispose();
 
@@ -254,12 +254,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         Vector3 touchPosition = new Vector3(screenX, screenY, 0);
         camera.unproject(touchPosition);
         currentRectangle.setCenter(0, touchPosition.y);
-        for(Rectangle rectangle: rectangles){
-            if(rectangle.contains(0, touchPosition.y)){
-                Gdx.app.log("RECTANGLE", "IN RECTANGLE");
-                rectangle.setCenter(0, touchPosition.y);
-            }
-        }
+//        for(Rectangle rectangle: rectangles){
+//            if(rectangle.contains(0, touchPosition.y)){
+//                Gdx.app.log("RECTANGLE", "IN RECTANGLE");
+//                rectangle.setCenter(0, touchPosition.y);
+//            }
+//        }
 
         Gdx.app.log( "MOVED",  screenX + " " + screenY + " " + pointer);
         return false;
