@@ -14,29 +14,31 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
-	Texture img;
 
-	private MyRectangle rectangle1, rectangle2, rectangle3, intersectionRectangle, currentRectangle, intersectionRectangle2;
-	private OrthographicCamera camera;
+    private OrthographicCamera camera;
 	private SpriteBatch batch;
-	private Pixmap pixmap, pixmap2, pixmap3, intersectionPixmap, intersectionPixmap2;
-	private Texture pixmaptex, pixmaptex2, pixmaptex3, intersectionPixmapTex, intersectionPixmapTex2;
-	private MyRectangle[] rectangles;
-	private Color intersectionColor, intersectionColor2;
-	List<Texture> intersections;
-	List<MyRectangle> intersectionRectangles;
-	List<Color> intersectionColors;
-    private boolean hasIntersectingRectangles;
-	float w,h;
+    private float w,h;
 
-	@Override
+    private MyRectangle rectangle1, rectangle2, rectangle3, rectangle4,
+            intersectionRectangle, currentRectangle, intersectionRectangle2;
+    private Pixmap pixmap, pixmap2, pixmap3, pixmap4,
+            intersectionPixmap, doubleintersectionPixmap;
+	private Texture pixmaptex, pixmaptex2, pixmaptex3, pixmaptex4, intersectionPixmapTex;
+	private MyRectangle[] rectangles;
+	List<Texture> intersections, doubleIntersections;
+	List<MyRectangle> intersectionRectangles, doubleIntersectionRectangles;
+    public int randomint;
+    private boolean hasDoubleIntersection, touchup;
+    private Texture doubleintersectionPixmapTex;
+
+    @Override
 	public void create () {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
-
         Gdx.input.setInputProcessor(this);
 
         w = Gdx.graphics.getWidth();
@@ -48,34 +50,45 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		camera.setToOrtho(false, 800, 800 * (h/w));
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 
-        rectangle1 = new MyRectangle();
-        rectangle1.width = w;
-        rectangle1.height = 200;
-        rectangle1.setColor(Color.RED);
+        Random r = new Random();
+        randomint = r.nextInt(3);
+        switch (randomint) {
+            case 0:
+                rectangle1 = new MyRectangle(Color.FIREBRICK, 0, 0, w, 220);
+                rectangle2 = new MyRectangle(Color.ORANGE, 0, 200, w, 220);
+                rectangle3 = new MyRectangle(Color.YELLOW, 0, 400, w, 220);
+                rectangle4 = new MyRectangle(Color.GREEN, 0, 600, w, 220);
+                break;
+            case 1:
+                rectangle1 = new MyRectangle(Color.CHARTREUSE, 0, 0, w, 220);
+                rectangle2 = new MyRectangle(Color.LIME, 0, 200, w, 220);
+                rectangle3 = new MyRectangle(Color.FOREST, 0, 400, w, 220);
+                rectangle4 = new MyRectangle(Color.OLIVE, 0, 600, w, 220);
+                break;
+            case 2:
+                rectangle1 = new MyRectangle(Color.RED, 0, 0, w, 220);
+                rectangle2 = new MyRectangle(Color.ORANGE, 0, 200, w, 220);
+                rectangle3 = new MyRectangle(Color.GREEN, 0, 400, w, 220);
+                rectangle4 = new MyRectangle(Color.BLUE, 0, 600, w, 220);
+            case 3:
+                rectangle1 = new MyRectangle(Color.RED, 0, 0, w, 220);
+                rectangle2 = new MyRectangle(Color.BLUE, 0, 200, w, 220);
+                rectangle3 = new MyRectangle(Color.TEAL, 0, 400, w, 220);
+                rectangle4 = new MyRectangle(Color.ORANGE, 0, 600, w, 220);
+                break;
+        }
 
 
-        rectangle2 = new MyRectangle();
-        rectangle2.x = 0;
-        rectangle2.y = 300;
-        rectangle2.width = w;
-        rectangle2.height = 200;
-        rectangle2.setColor(Color.BLUE);
-
-        rectangle3 = new MyRectangle();
-        rectangle3.x = 0;
-        rectangle3.y = 700;
-        rectangle3.width = w;
-        rectangle3.height = 200;
-        rectangle3.setColor(Color.TEAL);
 
 
-        rectangles = new MyRectangle[]{rectangle1, rectangle2, rectangle3};
+        rectangles = new MyRectangle[]{rectangle1, rectangle2, rectangle3, rectangle4};
         intersectionRectangle = new MyRectangle();
         intersectionRectangle2 = new MyRectangle();
 
         intersections = new ArrayList<Texture>();
+        doubleIntersections = new ArrayList<Texture>();
         intersectionRectangles = new ArrayList<MyRectangle>();
-        intersectionColors = new ArrayList<Color>();
+        doubleIntersectionRectangles = new ArrayList<MyRectangle>();
 
         pixmap = new Pixmap( (int) rectangle1.getWidth(), (int) rectangle1.getHeight(), Pixmap.Format.RGBA8888 );
         pixmap.setColor( rectangle1.getColor() );
@@ -95,60 +108,55 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         pixmaptex3 = new Texture(pixmap3);
         pixmap3.dispose();
 
+        pixmap4 = new Pixmap( (int) rectangle4.getWidth(), (int) rectangle4.getHeight(), Pixmap.Format.RGBA8888 );
+        pixmap4.setColor( rectangle4.getColor() );
+        pixmap4.fillRectangle(0, 0, (int) rectangle4.getWidth(), (int) rectangle4.getHeight());
+        pixmaptex4 = new Texture(pixmap4);
+        pixmap4.dispose();
+
         intersectionPixmap = new Pixmap( (int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight(), Pixmap.Format.RGBA8888 );
         intersectionPixmapTex = new Texture( intersectionPixmap );
         intersectionPixmap.dispose();
-        intersectionColor = colorBlend(rectangle1.getColor(), rectangle2.getColor());
 
-
-
-
-
-
+        doubleintersectionPixmap = new Pixmap( (int) intersectionRectangle2.getWidth(), (int) intersectionRectangle2.getHeight(), Pixmap.Format.RGBA8888 );
+        doubleintersectionPixmapTex = new Texture( doubleintersectionPixmap );
+        doubleintersectionPixmap.dispose();
 
         camera.update();
 
 	}
 
-//	public MyRectangle intersectRectangles (Rectangle rectangle1, Rectangle rectangle2) {
-//        MyRectangle someRectangle = new MyRectangle();
-//        if (rectangle1.overlaps(rectangle2)) {
-//            someRectangle.x = Math.max(rectangle1.x, rectangle2.x);
-//            someRectangle.width = Math.min(rectangle1.x + rectangle1.width, rectangle2.x + rectangle2.width) - someRectangle.x;
-//            someRectangle.y = Math.max(rectangle1.y, rectangle2.y);
-//            someRectangle.height = Math.min(rectangle1.y + rectangle1.height, rectangle2.y + rectangle2.height) - someRectangle.y;
-//            return someRectangle;
-//        }
-//    }
-
 	@Override
 	public void render () {
-
 		Gdx.gl.glClearColor(0.976f, 0.968f, 0.886f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(camera.combined);
 
 
 		batch.begin();
+
         batch.draw(pixmaptex, rectangle1.x, rectangle1.y);
         batch.draw(pixmaptex2, rectangle2.x, rectangle2.y);
         batch.draw(pixmaptex3, rectangle3.x, rectangle3.y);
+        batch.draw(pixmaptex4, rectangle4.x, rectangle4.y);
+
+        //Draw the intersecting rectangles
         for(int i = 0; i < intersectionRectangles.size(); i++){
             batch.draw(intersections.get(i), intersectionRectangles.get(i).x, intersectionRectangles.get(i).y);
+        }
+
+        if(hasDoubleIntersection){
+            for(int i = 0; i < doubleIntersectionRectangles.size(); i++){
+                batch.draw(doubleIntersections.get(i), doubleIntersectionRectangles.get(i).x, doubleIntersectionRectangles.get(i).y);
+            }
         }
 
         batch.end();
     }
 
     public Color colorBlend(Color RGBcolor1, Color RGBcolor2){
-	    Gdx.app.log("COLOR BLEND METHOD 1", RGBcolor1 + "");
-        Gdx.app.log("COLOR BLEND METHOD 2", RGBcolor2 + "");
-
         Color tempColor1 = new Color(RGBcolor1);
         Color tempColor2 = new Color(RGBcolor2);
-
-
-
         return tempColor1.mul(0.5f).add(tempColor2.mul(0.5f));
 
     }
@@ -156,8 +164,72 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
 	}
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        Vector3 touchPosition = new Vector3(screenX, screenY, 0);
+        camera.unproject(touchPosition);
+        for(MyRectangle rectangle: rectangles){
+            if(rectangle.contains(touchPosition.x, touchPosition.y)){
+                currentRectangle = rectangle;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        intersectionRectangles.clear();
+        intersections.clear();
+        doubleIntersectionRectangles.clear();
+        doubleIntersections.clear();
+
+        Vector3 touchPosition = new Vector3(screenX, screenY, 0);
+        camera.unproject(touchPosition);
+        if(currentRectangle != null && currentRectangle.contains(touchPosition.x, touchPosition.y)){
+            currentRectangle.setCenter(touchPosition.x, touchPosition.y);
+        }
+
+        for(int i = 0; i< rectangles.length; i++){
+            for(int j = i+1; j < rectangles.length; j++ ) {
+                if (rectangles[i] != rectangles[j] && Intersector.intersectRectangles(rectangles[i], rectangles[j], intersectionRectangle)) {
+
+                    intersectionRectangles.add(new MyRectangle(colorBlend(rectangles[i].getColor(), rectangles[j].getColor()), intersectionRectangle.x, intersectionRectangle.y,
+                            intersectionRectangle.width, intersectionRectangle.height));
+
+                    intersectionPixmap = new Pixmap((int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight(), Pixmap.Format.RGBA8888);
+                    intersectionPixmap.setColor(intersectionRectangles.get(intersectionRectangles.size() - 1).getColor());
+                    intersectionPixmap.fillRectangle(0, 0, (int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight());
+                    intersectionPixmapTex = new Texture(intersectionPixmap);
+                    intersections.add(intersectionPixmapTex);
+                    intersectionPixmap.dispose();
+
+
+                    if(intersectionRectangles.size() > 1){
+                        if(Intersector.intersectRectangles(intersectionRectangles.get(0), intersectionRectangles.get(1), intersectionRectangle2)){
+                            hasDoubleIntersection = true;
+                            randomint = 2;
+
+                            doubleIntersectionRectangles.add(new MyRectangle(colorBlend(intersectionRectangles.get(0).getColor(), intersectionRectangles.get(1).getColor()), intersectionRectangle2.x, intersectionRectangle2.y,
+                                    intersectionRectangle2.width, intersectionRectangle2.height));
+
+                            //Create the pixmap and corrisponding Texture for the double blended colors
+                            doubleintersectionPixmap = new Pixmap((int) intersectionRectangle2.getWidth(), (int) intersectionRectangle2.getHeight(), Pixmap.Format.RGBA8888);
+                            doubleintersectionPixmap.setColor(doubleIntersectionRectangles.get(doubleIntersectionRectangles.size() - 1).getColor());
+                            doubleintersectionPixmap.fillRectangle(0, 0, (int) intersectionRectangle2.getWidth(), (int) intersectionRectangle2.getHeight());
+                            doubleintersectionPixmapTex = new Texture(doubleintersectionPixmap);
+                            doubleIntersections.add(doubleintersectionPixmapTex);
+                            doubleintersectionPixmap.dispose();
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return false;
+    }
 
     @Override
     public boolean keyDown(int keycode) {
@@ -175,97 +247,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Vector3 touchPosition = new Vector3(screenX, screenY, 0);
-        camera.unproject(touchPosition);
-        for(MyRectangle rectangle: rectangles){
-            if(rectangle.contains(touchPosition.x, touchPosition.y)){
-                currentRectangle = rectangle;
-//                Gdx.app.log("TOUCHED", "IN RECTANGLE");
-            }
-        }
-        return false;
-    }
-
-
-    @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-	    return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-
-        intersectionRectangles.clear();
-        intersections.clear();
-        intersectionColors.clear();
-
-//        Color color = new Color();
-        hasIntersectingRectangles = false;
-        Vector3 touchPosition = new Vector3(screenX, screenY, 0);
-        camera.unproject(touchPosition);
-        if(currentRectangle != null && currentRectangle.contains(touchPosition.x, touchPosition.y)){
-            currentRectangle.setCenter(touchPosition.x, touchPosition.y);
-        }
-        for(int i = 0; i< rectangles.length; i++){
-            for(int j = i+1; j < rectangles.length; j++ ){
-                if(rectangles[i] != rectangles[j] && Intersector.intersectRectangles(rectangles[i], rectangles[j], intersectionRectangle)){
-
-                    //intersectionRectangle.setColor(colorBlend(rectangles[i].getColor(), rectangles[j].getColor()));
-                    Gdx.app.log("COLOR BLEND RESULT", colorBlend(rectangles[i].getColor(), rectangles[j].getColor()) + "");
-                    intersectionRectangles.add(new MyRectangle(colorBlend(rectangles[i].getColor(), rectangles[j].getColor()), intersectionRectangle.x, intersectionRectangle.y,
-                            intersectionRectangle.width, intersectionRectangle.height));
-                    intersectionPixmap = new Pixmap( (int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight(), Pixmap.Format.RGBA8888 );
-                    Gdx.app.log("RECTANGLES", intersectionRectangles.get(intersectionRectangles.size() - 1).getColor() + " ");
-                    intersectionPixmap.setColor(intersectionRectangles.get(intersectionRectangles.size()-1).getColor());
-                    intersectionPixmap.fillRectangle(0, 0, (int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight());
-                    intersectionPixmapTex = new Texture( intersectionPixmap );
-                    intersections.add(intersectionPixmapTex);
-                    intersectionPixmap.dispose();
-//                    Gdx.app.log("INTERSECTING", "ARE INTERSECTING!" + intersectionRectangle.getHeight()
-//                            + "y: " + intersectionRectangle.y);
-                    hasIntersectingRectangles = true;
-                }
-//                else{
-//                    intersectionPixmap = new Pixmap(0,0,Pixmap.Format.RGBA8888);
-//                    intersectionPixmapTex =  new Texture(intersectionPixmap);
-//                }
-
-            }
-        }
-//        if(Intersector.intersectRectangles(rectangle2, rectangle3, intersectionRectangle2)){
-//            intersectionPixmap2 = new Pixmap( (int) intersectionRectangle2.getWidth(), (int) intersectionRectangle2.getHeight(), Pixmap.Format.RGBA8888 );
-//            intersectionPixmap2.setColor(intersectionColor2);
-//            intersectionPixmap2.fillRectangle(0, 0, (int) intersectionRectangle2.getWidth(), (int) intersectionRectangle2.getHeight());
-//            intersectionPixmapTex2 = new Texture( intersectionPixmap2 );
-//            intersectionPixmap2.dispose();
-//            Gdx.app.log("INTERSECTING", "ARE INTERSECTING!" + intersectionRectangle2.getHeight()
-//                    + "y: " + intersectionRectangle2.y);
-//        }
-//        else{
-//            intersectionPixmap2 = new Pixmap(0,0,Pixmap.Format.RGBA8888);
-//            intersectionPixmapTex2 =  new Texture(intersectionPixmap2);
-//        }
-//        MyRectangle someRectangle = new MyRectangle();
-//        if(rectangle2.overlaps(rectangle1)){
-//            if(Intersector.intersectRectangles(rectangle1, rectangle2, someRectangle)){
-//                intersectionPixmap = new Pixmap( (int) someRectangle.getWidth(), (int) someRectangle.getHeight(), Pixmap.Format.RGBA8888 );
-//                intersectionPixmap.setColor(intersectionColor);
-//                intersectionPixmap.fillRectangle(0, 0, (int) someRectangle.getWidth(), (int) someRectangle.getHeight());
-//                intersectionPixmapTex = new Texture( intersectionPixmap );
-//                intersectionPixmap.dispose();
-//                Gdx.app.log("INTERSECTING", "ARE INTERSECTING!" + someRectangle.getHeight()
-//                        + "y: " + someRectangle.y);
-//            }
-//        }
-//        MyRectangle intersectionRectangle = intersectRectangles(rectangle1, rectangle2);
-//        intersectionPixmap = new Pixmap( (int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight(), Pixmap.Format.RGBA8888 );
-//        intersectionPixmap.setColor(intersectionColor);
-//        intersectionPixmap.fillRectangle(0, 0, (int) intersectionRectangle.getWidth(), (int) intersectionRectangle.getHeight());
-//        intersectionPixmapTex = new Texture( intersectionPixmap );
-//        intersectionPixmap.dispose();
-
-
         return false;
     }
 
